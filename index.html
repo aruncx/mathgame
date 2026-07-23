@@ -259,7 +259,7 @@
         <span>✅ <span id="scoreCorrect">0</span></span>
         <span>❌ <span id="scoreWrong">0</span></span>
       </div>
-      <button class="icon-btn" id="muteBtn" title="Toggle sound" aria-label="Toggle sound">🔊</button>
+      <button class="icon-btn" id="muteBtn" title="Toggle sound &amp; music" aria-label="Toggle sound and music">🔊</button>
     </div>
   </div>
 
@@ -570,6 +570,61 @@
       osc.start(start); osc.stop(start + 0.2);
     });
   }
+
+  // ----- Background music (looping, synthesized — no audio files needed) -----
+  const MUSIC_STEP_MS = 300;
+  // 16-step playful pentatonic loop; null = rest
+  const MUSIC_LEAD = [523.25, null, 659.25, 783.99, null, 659.25, 587.33, null,
+                       523.25, null, 587.33, 659.25, null, 783.99, 659.25, null];
+  const MUSIC_BASS = [130.81, null, null, null, 196.00, null, null, null,
+                       220.00, null, null, null, 196.00, null, null, null];
+  let musicPlaying = false;
+  let musicStepIndex = 0;
+  let musicTimeoutId = null;
+
+  function scheduleTone(freq, startTime, duration, type, peakVolume){
+    const ctx = ensureAudio();
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.type = type;
+    osc.frequency.value = freq;
+    gain.gain.setValueAtTime(0.0001, startTime);
+    gain.gain.linearRampToValueAtTime(peakVolume, startTime + 0.02);
+    gain.gain.exponentialRampToValueAtTime(0.0001, startTime + duration);
+    osc.connect(gain); gain.connect(ctx.destination);
+    osc.start(startTime);
+    osc.stop(startTime + duration + 0.05);
+  }
+
+  function musicTick(){
+    if(!musicPlaying) return;
+    if(soundOn){
+      const ctx = ensureAudio();
+      const now = ctx.currentTime;
+      const lead = MUSIC_LEAD[musicStepIndex % MUSIC_LEAD.length];
+      const bass = MUSIC_BASS[musicStepIndex % MUSIC_BASS.length];
+      if(lead) scheduleTone(lead, now, (MUSIC_STEP_MS / 1000) * 0.85, 'triangle', 0.05);
+      if(bass) scheduleTone(bass, now, (MUSIC_STEP_MS / 1000) * 1.6, 'sine', 0.055);
+    }
+    musicStepIndex++;
+    musicTimeoutId = setTimeout(musicTick, MUSIC_STEP_MS);
+  }
+
+  function startMusic(){
+    if(musicPlaying) return;
+    musicPlaying = true;
+    musicStepIndex = 0;
+    musicTick();
+  }
+
+  // Browsers block audio until a user gesture, so the loop begins on the
+  // very first tap anywhere on the page (setup chips count too) and then
+  // just follows the soundOn / mute toggle from then on.
+  document.addEventListener('pointerdown', function initMusic(){
+    ensureAudio();
+    startMusic();
+    document.removeEventListener('pointerdown', initMusic);
+  }, { once: true });
 
   // ----- Confetti -----
   function spawnConfetti(count){
