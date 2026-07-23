@@ -178,26 +178,19 @@
   const liveTrackerText = document.getElementById('liveTrackerText');
 
   function initLiveTracker() {
-    if ('BroadcastChannel' in window) {
-      try {
-        const channel = new BroadcastChannel('number_jungle_network');
-        channel.onmessage = (e) => {
-          if (e.data === 'ping') {
-            channel.postMessage({ type: 'pong', avatar: AvatarManager.getSelected().name });
-          }
-        };
-        channel.postMessage('ping');
-      } catch (e) {
-        console.warn("BroadcastChannel live status:", e);
-      }
+    if (window.PresenceEngine) {
+      PresenceEngine.init((displayText) => {
+        if (liveTrackerText) {
+          liveTrackerText.textContent = displayText;
+        }
+      });
     }
-    updateLiveTracker();
   }
 
   function updateLiveTracker() {
-    const selected = AvatarManager.getSelected();
-    if (!liveTrackerText) return;
-    liveTrackerText.textContent = `1 ${selected.name} playing`;
+    if (window.PresenceEngine) {
+      PresenceEngine.sendHeartbeat();
+    }
   }
 
   function updateBuddyDisplays() {
