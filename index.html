@@ -1,861 +1,262 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Number Jungle — Addition &amp; Subtraction Adventure</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;700;800&family=Quicksand:wght@500;600;700&display=swap" rel="stylesheet">
-<style>
-  :root{
-    --sky-top:#BFEAF5;
-    --sky-bottom:#EAF9E7;
-    --leaf:#3AA655;
-    --leaf-dark:#2F6B4F;
-    --sun:#FFD166;
-    --coral:#FF6F59;
-    --cream:#FFFDF7;
-    --choc:#5C3D2E;
-    --shadow:rgba(47,107,79,0.28);
-  }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+  <meta name="description" content="Number Jungle — Award-Winning Math Learning Adventure Game for Class 1 and Class 2 Students (Ages 5-8)">
+  <meta name="theme-color" content="#52B788">
+  <title>Number Jungle — Math Learning Adventure</title>
 
-  *{ box-sizing:border-box; }
+  <!-- Google Fonts: Baloo 2 & Quicksand -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Quicksand:wght@600;700;800&display=swap" rel="stylesheet">
 
-  html,body{
-    margin:0; padding:0; height:100%;
-    font-family:'Quicksand', sans-serif;
-    color:var(--choc);
-  }
-
-  body{
-    min-height:100vh;
-    background: linear-gradient(180deg, var(--sky-top) 0%, var(--sky-bottom) 65%, #DFF3C8 100%);
-    display:flex; align-items:center; justify-content:center;
-    position:relative;
-    overflow-x:hidden;
-  }
-
-  /* Ambient drifting leaves/clouds — quiet background motion */
-  .ambient{ position:fixed; inset:0; pointer-events:none; overflow:hidden; z-index:0; }
-  .cloud{
-    position:absolute; font-size:2.6rem; opacity:.55;
-    animation: drift linear infinite;
-  }
-  .cloud.c1{ top:6%;  left:-10%; animation-duration:48s; }
-  .cloud.c2{ top:14%; left:-20%; animation-duration:65s; animation-delay:-20s; font-size:2rem; }
-  .cloud.c3{ top:3%;  left:-15%; animation-duration:80s; animation-delay:-40s; font-size:3.2rem; }
-  @keyframes drift{ from{ transform:translateX(0);} to{ transform:translateX(130vw);} }
-
-  .app{
-    position:relative; z-index:1;
-    width:min(760px, 94vw);
-    max-height:90vh;
-    overflow-y:auto;
-    background:var(--cream);
-    border-radius:32px;
-    box-shadow:0 24px 60px var(--shadow);
-    padding:22px clamp(16px,4vw,40px) 28px;
-    display:flex; flex-direction:column; gap:14px;
-  }
-
-  /* ---------- Top bar ---------- */
-  .topbar{ display:flex; align-items:center; justify-content:space-between; gap:10px; }
-  .brand{ display:flex; align-items:center; gap:10px; }
-  .brand-emoji{ font-size:1.8rem; }
-  .brand h1{
-    font-family:'Baloo 2', cursive; font-weight:800;
-    font-size:clamp(1.1rem, 3vw, 1.5rem);
-    margin:0; color:var(--leaf-dark); line-height:1.1;
-  }
-  .brand p{ margin:0; font-size:.75rem; font-weight:600; color:#6a8f75; }
-
-  .top-right{ display:flex; align-items:center; gap:10px; }
-  .score-pill{
-    display:flex; gap:10px; align-items:center;
-    background:#fff; border:2px solid #E4EEDD; border-radius:999px;
-    padding:6px 12px; font-weight:700; font-size:.85rem;
-  }
-  .score-pill span{ display:flex; align-items:center; gap:4px; }
-  #scoreCorrect{ color:var(--leaf-dark); }
-  #scoreWrong{ color:var(--coral); }
-
-  .icon-btn{
-    width:40px; height:40px; border-radius:50%; border:2px solid #E4EEDD;
-    background:#fff; font-size:1.1rem; cursor:pointer; display:flex; align-items:center; justify-content:center;
-    transition:transform .15s ease;
-  }
-  .icon-btn:hover{ transform:scale(1.08); }
-  .icon-btn:focus-visible, .option-btn:focus-visible, .nav-btn:focus-visible, .chip:focus-visible{
-    outline:3px solid var(--sun); outline-offset:2px;
-  }
-
-  /* ---------- Setup screen ---------- */
-  #setupScreen{ display:flex; flex-direction:column; gap:18px; padding:6px 0 10px; }
-  #setupScreen h2{
-    font-family:'Baloo 2', cursive; font-size:clamp(1.3rem,4vw,1.7rem);
-    color:var(--leaf-dark); margin:0; text-align:center;
-  }
-  #setupScreen .setup-sub{ text-align:center; margin:-10px 0 4px; font-size:.85rem; color:#6a8f75; font-weight:600; }
-  .setup-group .setup-label{ font-weight:700; margin:0 0 8px; font-size:.95rem; color:var(--choc); }
-  .chip-row{ display:flex; flex-wrap:wrap; gap:10px; }
-  .chip{
-    font-family:'Quicksand', sans-serif; font-weight:700; font-size:.9rem;
-    padding:10px 16px; border-radius:999px; border:2px solid #E4EEDD; background:#fff;
-    color:var(--leaf-dark); cursor:pointer; transition:transform .12s ease, background .2s ease, border-color .2s ease;
-  }
-  .chip:hover{ transform:translateY(-2px); border-color:var(--sun); }
-  .chip.selected{ background:var(--leaf); border-color:var(--leaf-dark); color:#fff; }
-  #startBtn{ width:100%; font-size:1.1rem; padding:14px; margin-top:6px; }
-
-  /* ---------- Vine progress + monkey ---------- */
-  .vine-wrap{ position:relative; height:64px; margin-top:2px; }
-  .vine-line{
-    position:absolute; left:4%; right:4%; top:34px; height:0;
-    border-top:4px dashed #BFE3A8;
-  }
-  .vine-nodes{ position:absolute; left:0; right:0; top:0; height:100%; display:flex; justify-content:space-between; padding:0 4%; }
-  .vine-node{
-    width:26px; height:26px; border-radius:50%; margin-top:22px;
-    display:flex; align-items:center; justify-content:center; font-size:.9rem;
-    background:#fff; border:2px solid #BFE3A8; transition:all .25s ease;
-  }
-  .vine-node.current{ border-color:var(--sun); box-shadow:0 0 0 4px rgba(255,209,102,.35); transform:scale(1.15); }
-  .vine-node.solved{ background:var(--leaf); border-color:var(--leaf-dark); }
-
-  .monkey-rig{
-    position:absolute; top:-14px; transform:translateX(-50%);
-    transition:left .5s cubic-bezier(.34,1.56,.64,1);
-    display:flex; flex-direction:column; align-items:center;
-  }
-  .monkey{ font-size:2.2rem; display:inline-block; animation: idleBob 2.4s ease-in-out infinite; transform-origin:center; }
-  .monkey.hop{ animation: hopAnim .7s ease; }
-  .monkey.wobble{ animation: wobbleAnim .6s ease; }
-  .bubble{
-    position:absolute; top:-26px; left:50%; transform:translateX(-50%) scale(.4);
-    font-size:1.3rem; opacity:0; pointer-events:none;
-  }
-  .bubble.show{ animation: bubblePop 1s ease forwards; }
-
-  @keyframes idleBob{ 0%,100%{ transform:translateY(0);} 50%{ transform:translateY(-4px);} }
-  @keyframes hopAnim{ 0%{ transform:translateY(0) rotate(0);} 30%{ transform:translateY(-16px) rotate(-8deg);} 55%{ transform:translateY(0) rotate(6deg);} 75%{ transform:translateY(-8px) rotate(-4deg);} 100%{ transform:translateY(0) rotate(0);} }
-  @keyframes wobbleAnim{ 0%,100%{ transform:rotate(0);} 25%{ transform:rotate(-12deg);} 50%{ transform:rotate(10deg);} 75%{ transform:rotate(-6deg);} }
-  @keyframes bubblePop{ 0%{ opacity:0; transform:translateX(-50%) scale(.4) translateY(0);} 25%{ opacity:1; transform:translateX(-50%) scale(1.15) translateY(-6px);} 70%{ opacity:1; transform:translateX(-50%) scale(1) translateY(-10px);} 100%{ opacity:0; transform:translateX(-50%) scale(1) translateY(-22px);} }
-
-  /* ---------- Quiz card ---------- */
-  #quizScreen{ display:flex; flex-direction:column; align-items:center; gap:18px; }
-
-  .progress-label{ font-weight:700; font-size:.85rem; color:#6a8f75; }
-
-  .equation{
-    display:flex; align-items:center; gap:clamp(8px,2vw,18px);
-    font-family:'Baloo 2', cursive; font-weight:800;
-    font-size:clamp(1.9rem, 7vw, 3.2rem);
-    color:var(--leaf-dark);
-  }
-  .eq-num{ min-width:1.2ch; text-align:center; }
-  .eq-op{ color:var(--coral); }
-  .blank-box{
-    min-width:1.4em; padding:0 .14em; height:1.15em; border-radius:18px;
-    background:#fff; border:4px dashed var(--sun);
-    display:flex; align-items:center; justify-content:center;
-    font-size:.85em; color:#c79b2c;
-  }
-  .blank-box.solved{
-    border-style:solid; border-color:var(--leaf); color:var(--leaf-dark);
-    animation: popIn .4s ease;
-  }
-  @keyframes popIn{ 0%{ transform:scale(.6);} 60%{ transform:scale(1.15);} 100%{ transform:scale(1);} }
-
-  .options{
-    display:flex; flex-wrap:wrap; justify-content:center; gap:12px;
-    width:100%;
-  }
-  .option-btn{
-    min-width:60px; min-height:60px; padding:0 10px;
-    border-radius:18px; border:3px solid #E4EEDD; background:#fff;
-    font-family:'Baloo 2', cursive; font-weight:700; font-size:1.4rem;
-    color:var(--leaf-dark); cursor:pointer;
-    transition:transform .12s ease, background .2s ease, border-color .2s ease;
-  }
-  .option-btn:hover:not(:disabled){ transform:translateY(-3px); border-color:var(--sun); }
-  .option-btn:active:not(:disabled){ transform:translateY(0); }
-  .option-btn:disabled{ cursor:default; }
-  .option-btn.correct{ background:var(--leaf); border-color:var(--leaf-dark); color:#fff; }
-  .option-btn.wrong{ background:#FFE3DE; border-color:var(--coral); color:#b8402f; opacity:.75; }
-
-  .feedback{
-    min-height:1.4em; font-weight:700; font-size:1.05rem; text-align:center;
-  }
-
-  .nav-row{ display:flex; justify-content:space-between; align-items:center; margin-top:4px; }
-  .nav-btn{
-    font-family:'Quicksand', sans-serif; font-weight:700; font-size:1rem;
-    padding:12px 22px; border-radius:999px; border:none; cursor:pointer;
-    transition:transform .15s ease, opacity .2s ease;
-  }
-  .nav-btn:hover:not(:disabled){ transform:translateY(-2px); }
-  .nav-btn:disabled{ opacity:.4; cursor:not-allowed; }
-  #backBtn{ background:#fff; border:2px solid #E4EEDD; color:var(--leaf-dark); }
-  #nextBtn{ background:var(--leaf); color:#fff; box-shadow:0 8px 18px rgba(58,166,85,.35); }
-
-  /* ---------- Summary screen ---------- */
-  #summaryScreen{ display:none; flex-direction:column; align-items:center; gap:14px; text-align:center; padding:20px 0; }
-  #summaryScreen h2{ font-family:'Baloo 2', cursive; font-size:clamp(1.4rem,5vw,2rem); color:var(--leaf-dark); margin:0; }
-
-  .credits{
-    position:fixed; left:0; right:0; bottom:0; z-index:2;
-    text-align:center; font-size:.72rem; font-weight:600; color:#5f8a6d;
-    padding:8px 12px; background:rgba(255,253,247,.7);
-  }
-  .credits a{ color:var(--leaf-dark); text-decoration:none; }
-  .credits a:hover{ text-decoration:underline; }
-  .gh-link{
-    display:inline-flex; align-items:center; justify-content:center;
-    margin-left:6px; vertical-align:middle; transition:transform .15s ease;
-  }
-  .gh-link:hover{ transform:scale(1.15); text-decoration:none; }
-  .summary-stats{ display:flex; gap:22px; font-weight:700; }
-  .summary-stats .stat{ background:#fff; border:2px solid #E4EEDD; border-radius:20px; padding:14px 22px; }
-  .summary-stats .stat span{ display:block; font-family:'Baloo 2', cursive; font-size:1.8rem; }
-  .stat.ok span{ color:var(--leaf-dark); }
-  .stat.no span{ color:var(--coral); }
-  .summary-actions{ display:flex; gap:12px; margin-top:6px; flex-wrap:wrap; justify-content:center; }
-  #playAgainBtn{
-    background:var(--sun); color:var(--choc); border:none;
-    font-family:'Quicksand', sans-serif; font-weight:700; font-size:1.05rem;
-    padding:14px 26px; border-radius:999px; cursor:pointer; box-shadow:0 8px 18px rgba(255,209,102,.5);
-  }
-  #changeSettingsBtn{
-    background:#fff; color:var(--leaf-dark); border:2px solid #E4EEDD;
-    font-family:'Quicksand', sans-serif; font-weight:700; font-size:1.05rem;
-    padding:14px 26px; border-radius:999px; cursor:pointer;
-  }
-
-  /* ---------- Confetti ---------- */
-  #confettiLayer{ position:fixed; inset:0; pointer-events:none; z-index:50; overflow:hidden; }
-  .confetti-piece{ position:absolute; top:-20px; border-radius:2px; opacity:.95; }
-
-  @media (prefers-reduced-motion: reduce){
-    .monkey, .monkey.hop, .monkey.wobble, .cloud, .blank-box.solved{ animation:none !important; }
-    .monkey-rig{ transition:none; }
-  }
-
-  @media (max-width:480px){
-    .app{ padding:16px 14px 22px; border-radius:24px; }
-    .equation{ gap:8px; }
-  }
-</style>
+  <!-- Main Stylesheet -->
+  <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
 
-<div class="ambient">
-  <span class="cloud c1">☁️</span>
-  <span class="cloud c2">🍃</span>
-  <span class="cloud c3">☁️</span>
-</div>
+  <!-- Particle Effects Overlay Canvas -->
+  <canvas id="fxCanvas"></canvas>
 
-<div id="confettiLayer"></div>
+  <!-- Ambient Animated Environment -->
+  <div class="ambient-layer" aria-hidden="true">
+    <div class="floating-cloud cloud-1">☁️</div>
+    <div class="floating-cloud cloud-2">🍃</div>
+    <div class="floating-cloud cloud-3">☁️</div>
+    <div class="ambient-butterfly bf-1">🦋</div>
+    <div class="ambient-butterfly bf-2">🐝</div>
+  </div>
 
-<main class="app">
+  <div class="game-viewport">
+    <main class="app-card">
 
-  <div class="topbar">
-    <div class="brand">
-      <span class="brand-emoji">🐵</span>
-      <div>
-        <h1>Number Jungle</h1>
-        <p>Find the missing number!</p>
-      </div>
-    </div>
-    <div class="top-right" id="scoreArea" style="display:none;">
-      <div class="score-pill">
-        <span>✅ <span id="scoreCorrect">0</span></span>
-        <span>❌ <span id="scoreWrong">0</span></span>
-      </div>
-      <button class="icon-btn" id="muteBtn" title="Toggle sound &amp; music" aria-label="Toggle sound and music">🔊</button>
+      <!-- Global Top Navigation Bar -->
+      <header class="top-bar">
+        <div class="brand-badge" id="brandHome" title="Number Jungle Home">
+          <span class="brand-avatar" id="topBuddyEmoji">🐵</span>
+          <div class="brand-text">
+            <h1>Number Jungle</h1>
+            <p>Math Adventure for Kids</p>
+          </div>
+        </div>
+
+        <div class="header-actions">
+          <div class="live-tracker-pill" id="liveTrackerPill" title="Active Player Status">
+            <span class="live-dot">🟢</span>
+            <span id="liveTrackerText">1 Milo Monkey playing</span>
+          </div>
+          <div class="stat-pill" title="Current Score">
+            <span class="correct-count">✅ <span id="scoreCorrect">0</span></span>
+            <span class="wrong-count">❌ <span id="scoreWrong">0</span></span>
+          </div>
+          <div class="streak-badge" title="Current Streak">
+            🔥 <span id="streakCount">0</span>
+          </div>
+          <button class="btn-icon" id="readSpeechBtn" title="Read Question Aloud" aria-label="Read Question Aloud">🔊</button>
+          <button class="btn-icon" id="muteBtn" title="Toggle Sound & Music" aria-label="Toggle Sound and Music">🎵</button>
+        </div>
+      </header>
+
+      <!-- ================= SCREEN 1: WELCOME SCREEN ================= -->
+      <section class="screen-section" id="welcomeScreen">
+        <div class="welcome-container">
+          <h2 class="welcome-title">🎉 Welcome Explorer!</h2>
+
+          <div class="welcome-buddy-stage">
+            <span class="stage-sun">☀️</span>
+            <span class="stage-tree tree-left">🌴</span>
+            <span class="stage-tree tree-right">🌴</span>
+            <span class="stage-buddy" id="mainBuddyStage">🐵</span>
+          </div>
+
+          <p style="font-weight: 700; font-size: 1.1rem; color: var(--leaf-dark);">
+            Join your buddy on an exciting Jungle Math Adventure!
+          </p>
+
+          <button class="btn-primary" id="startWelcomeBtn" style="font-size: 1.4rem; padding: 16px 40px;">
+            Start Adventure ▶
+          </button>
+        </div>
+      </section>
+
+      <!-- ================= SCREEN 2: AVATAR / BUDDY SELECTOR ================= -->
+      <section class="screen-section hidden" id="avatarScreen">
+        <div class="welcome-container">
+          <h2 class="welcome-title">Choose Your Learning Buddy!</h2>
+          <p style="font-weight: 700; color: var(--text-muted);">Pick an avatar to travel with you through the jungle:</p>
+
+          <div class="avatar-grid" id="avatarGrid"></div>
+
+          <button class="btn-primary" id="saveAvatarBtn">
+            Next: Game Settings ▶
+          </button>
+        </div>
+      </section>
+
+      <!-- ================= SCREEN 3: GAME SETUP & MODES ================= -->
+      <section class="screen-section hidden" id="setupScreen">
+        <div class="welcome-container" style="gap: 16px; text-align: left; align-items: stretch;">
+          <h2 class="welcome-title" style="text-align: center;">⚙️ Game Settings</h2>
+
+          <div class="setup-group">
+            <p class="group-title">Choose Operation</p>
+            <div class="chip-group" data-group="opMode">
+              <button class="chip-btn" data-value="add">Addition (+)</button>
+              <button class="chip-btn" data-value="sub">Subtraction (−)</button>
+              <button class="chip-btn" data-value="mul">Multiplication (×)</button>
+              <button class="chip-btn" data-value="div">Division (÷)</button>
+              <button class="chip-btn selected" data-value="both">Mixed (+ & −)</button>
+              <button class="chip-btn" data-value="all_mixed">All Operations (Mixed)</button>
+            </div>
+          </div>
+
+          <div class="setup-group">
+            <p class="group-title">Where is the blank?</p>
+            <div class="chip-group" data-group="blankMode">
+              <button class="chip-btn" data-value="second">1 + __ = 5</button>
+              <button class="chip-btn" data-value="result">1 + 1 = __</button>
+              <button class="chip-btn" data-value="first">__ − 1 = 3</button>
+              <button class="chip-btn selected" data-value="mix">All Mixed</button>
+            </div>
+          </div>
+
+          <div class="setup-group">
+            <p class="group-title">Highest Number</p>
+            <div class="chip-group" data-group="maxNum">
+              <button class="chip-btn" data-value="5">Up to 5</button>
+              <button class="chip-btn selected" data-value="10">Up to 10</button>
+              <button class="chip-btn" data-value="20">Up to 20</button>
+              <button class="chip-btn" data-value="50">Up to 50</button>
+              <button class="chip-btn" data-value="100">Up to 100</button>
+            </div>
+          </div>
+
+          <div class="setup-group">
+            <p class="group-title">Number of Questions</p>
+            <div class="chip-group" data-group="count">
+              <button class="chip-btn" data-value="5">5</button>
+              <button class="chip-btn selected" data-value="10">10</button>
+              <button class="chip-btn" data-value="15">15</button>
+              <button class="chip-btn" data-value="20">20</button>
+            </div>
+          </div>
+
+          <div class="setup-group">
+            <p class="group-title">Play Mode</p>
+            <div class="chip-group" data-group="playMode">
+              <button class="chip-btn selected" data-value="practice">Practice (Relaxed)</button>
+              <button class="chip-btn" data-value="timed">Timed Challenge ⏱️</button>
+            </div>
+          </div>
+
+          <button class="btn-primary" id="startGameBtn" style="margin-top: 10px;">
+            Let's Play! 🚀
+          </button>
+        </div>
+      </section>
+
+      <!-- ================= SCREEN 4: QUIZ QUESTION CARD ================= -->
+      <section class="screen-section hidden" id="quizScreen">
+        
+        <!-- Jungle Path Progress Bar -->
+        <div class="path-container" id="pathContainer">
+          <div class="path-line"></div>
+          <div class="path-nodes" id="pathNodes"></div>
+          <div class="path-buddy-rig" id="pathBuddyRig">
+            <div class="buddy-speech-bubble" id="pathSpeechBubble">Yay!</div>
+            <span class="buddy-avatar-path" id="pathBuddyEmoji">🐵</span>
+          </div>
+        </div>
+
+        <div class="quiz-card">
+          <div class="quiz-meta">
+            <span id="progressLabel">Question 1 of 10</span>
+            <div class="timer-pill" id="timerPill" style="display: none;">
+              ⏱️ <span id="timerVal">15</span>s
+            </div>
+          </div>
+
+          <!-- Equation Display Box -->
+          <div class="equation-box" aria-live="off">
+            <span class="eq-slot" id="slotA">1</span>
+            <span class="eq-op" id="eqOp">+</span>
+            <span class="eq-slot" id="slotB">1</span>
+            <span class="eq-op">=</span>
+            <span class="eq-slot" id="slotC">2</span>
+          </div>
+
+          <!-- Multiple Choice Option Buttons Grid -->
+          <div class="options-grid" id="optionsGrid"></div>
+
+          <!-- Feedback Banner -->
+          <div class="feedback-banner" id="feedbackBanner" role="status" aria-live="polite"></div>
+        </div>
+      </section>
+
+      <!-- ================= SCREEN 5: SUMMARY & CELEBRATION ================= -->
+      <section class="screen-section hidden" id="summaryScreen">
+        <div class="summary-container">
+          <div class="trophy-stage">🏆</div>
+          <h2 class="welcome-title" id="summaryTitle">🌟 Great Job, Explorer!</h2>
+
+          <div class="summary-stats-grid">
+            <div class="stat-box">
+              <span class="stat-val" id="sumCorrect" style="color: var(--leaf-main);">0</span>
+              <span class="stat-label">Correct</span>
+            </div>
+            <div class="stat-box">
+              <span class="stat-val" id="sumWrong" style="color: var(--coral-red);">0</span>
+              <span class="stat-label">Wrong</span>
+            </div>
+            <div class="stat-box">
+              <span class="stat-val" id="sumAccuracy" style="color: var(--purple-magic);">0%</span>
+              <span class="stat-label">Accuracy</span>
+            </div>
+            <div class="stat-box">
+              <span class="stat-box-val stat-val" id="sumStreak" style="color: var(--sun-orange);">0</span>
+              <span class="stat-label">Best Streak</span>
+            </div>
+          </div>
+
+          <div class="action-row">
+            <button class="btn-primary" id="playAgainBtn">Play Again 🔁</button>
+            <button class="btn-secondary" id="changeSettingsBtn">⚙️ Settings</button>
+            <button class="btn-secondary" id="goHomeBtn">🏠 Home</button>
+          </div>
+        </div>
+      </section>
+
+    </main>
+
+    <!-- Footer Credits -->
+    <footer class="app-footer">
+      <span>Made with ❤️ by <strong>Arun</strong></span>
+      <a href="https://github.com/aruncx" target="_blank" rel="noopener noreferrer" class="github-credit-link" aria-label="Arun's GitHub Profile" title="https://github.com/aruncx">
+        <svg viewBox="0 0 16 16" width="20" height="20" fill="currentColor" aria-hidden="true">
+          <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8Z"/>
+        </svg>
+      </a>
+    </footer>
+  </div>
+
+  <!-- 3-STREAK SURPRISE CELEBRATION MODAL OVERLAY -->
+  <div class="celebration-overlay" id="celebrationOverlay">
+    <div class="hero-card">
+      <div class="hero-avatar" id="heroAvatar">🦇</div>
+      <h3 class="hero-title" id="heroTitle">Bat-Hero!</h3>
+      <p class="hero-subtitle" id="heroSubtitle">Saves the day with Math Power!</p>
     </div>
   </div>
 
-  <!-- ===== Setup screen ===== -->
-  <section id="setupScreen">
-    <h2>🐵 Let's Set Up Your Game!</h2>
-    <p class="setup-sub">Pick the settings, then jump in.</p>
-
-    <div class="setup-group">
-      <p class="setup-label">Choose operation</p>
-      <div class="chip-row" data-group="op">
-        <button class="chip" data-value="add">Addition (+)</button>
-        <button class="chip" data-value="sub">Subtraction (−)</button>
-        <button class="chip selected" data-value="both">Both</button>
-      </div>
-    </div>
-
-    <div class="setup-group">
-      <p class="setup-label">Where's the blank?</p>
-      <div class="chip-row" data-group="blank">
-        <button class="chip" data-value="second">1 + __ = 5</button>
-        <button class="chip" data-value="result">1 + 1 = __</button>
-        <button class="chip" data-value="first">__ − 1 = 3</button>
-        <button class="chip selected" data-value="mix">All Mixed</button>
-      </div>
-    </div>
-
-    <div class="setup-group">
-      <p class="setup-label">Biggest number in the answer</p>
-      <div class="chip-row" data-group="max">
-        <button class="chip" data-value="5">Up to 5</button>
-        <button class="chip selected" data-value="10">Up to 10</button>
-        <button class="chip" data-value="20">Up to 20</button>
-        <button class="chip" data-value="50">Up to 50</button>
-        <button class="chip" data-value="100">Up to 100</button>
-      </div>
-    </div>
-
-    <div class="setup-group">
-      <p class="setup-label">Number of questions</p>
-      <div class="chip-row" data-group="count">
-        <button class="chip" data-value="5">5</button>
-        <button class="chip selected" data-value="10">10</button>
-        <button class="chip" data-value="15">15</button>
-        <button class="chip" data-value="20">20</button>
-      </div>
-    </div>
-
-    <button class="nav-btn" id="startBtn" style="background:var(--leaf); color:#fff;">Start Game ▶</button>
-  </section>
-
-  <!-- ===== Vine progress ===== -->
-  <div class="vine-wrap" id="vineWrap" style="display:none;">
-    <div class="vine-line"></div>
-    <div class="vine-nodes" id="vineNodes"></div>
-    <div class="monkey-rig" id="monkeyRig">
-      <span class="bubble" id="bubble">🎉</span>
-      <span class="monkey" id="monkey">🐵</span>
-    </div>
-  </div>
-
-  <!-- ===== Quiz screen ===== -->
-  <section id="quizScreen" style="display:none;">
-    <div class="progress-label" id="progressLabel">Question 1 of 10</div>
-
-    <div class="equation" aria-live="off">
-      <span class="eq-slot" id="slotA">1</span>
-      <span class="eq-op" id="eqOp">+</span>
-      <span class="eq-slot" id="slotB">1</span>
-      <span class="eq-op">=</span>
-      <span class="eq-slot" id="slotC">2</span>
-    </div>
-
-    <div class="options" id="optionsWrap"></div>
-
-    <div class="feedback" id="feedback" role="status" aria-live="polite"></div>
-  </section>
-
-  <div class="nav-row" id="navRow" style="display:none;">
-    <button class="nav-btn" id="backBtn">◀ Back</button>
-    <button class="nav-btn" id="nextBtn" disabled>Next ▶</button>
-  </div>
-
-  <!-- ===== Summary screen ===== -->
-  <section id="summaryScreen">
-    <h2 id="summaryTitle">🌟 Great job, Explorer!</h2>
-    <div class="summary-stats">
-      <div class="stat ok">Correct<span id="sumCorrect">0</span></div>
-      <div class="stat no">Wrong<span id="sumWrong">0</span></div>
-    </div>
-    <div class="summary-actions">
-      <button id="playAgainBtn">Play Again 🔁</button>
-      <button id="changeSettingsBtn">⚙️ Change Settings</button>
-    </div>
-  </section>
-
-</main>
-
-<footer class="credits">
-  Made by Arun
-  <a href="https://github.com/aruncx" target="_blank" rel="noopener" class="gh-link" aria-label="Arun's GitHub profile" title="github.com/aruncx">
-    <svg viewBox="0 0 16 16" width="16" height="16" fill="currentColor" aria-hidden="true">
-      <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8Z"/>
-    </svg>
-  </a>
-</footer>
-
-<script>
-(function(){
-  "use strict";
-
-  // ----- Config (defaults; changed via setup screen) -----
-  let TOTAL = 10;      // number of questions per round
-  let MAX_NUM = 10;    // highest number that can appear as the result
-  let OP_MODE = 'both'; // 'add' | 'sub' | 'both'
-  let BLANK_MODE = 'mix'; // 'first' | 'second' | 'result' | 'mix'
-
-  // ----- State -----
-  let questions = [];
-  let currentIndex = 0;
-  let score = { correct: 0, wrong: 0 };
-  let soundOn = true;
-  let audioCtx = null;
-
-  // ----- DOM refs -----
-  const setupScreen = document.getElementById('setupScreen');
-  const startBtn = document.getElementById('startBtn');
-  const scoreArea = document.getElementById('scoreArea');
-
-  const slotA = document.getElementById('slotA');
-  const eqOp = document.getElementById('eqOp');
-  const slotB = document.getElementById('slotB');
-  const slotC = document.getElementById('slotC');
-  const optionsWrap = document.getElementById('optionsWrap');
-  const feedbackEl = document.getElementById('feedback');
-  const progressLabel = document.getElementById('progressLabel');
-  const backBtn = document.getElementById('backBtn');
-  const nextBtn = document.getElementById('nextBtn');
-  const scoreCorrectEl = document.getElementById('scoreCorrect');
-  const scoreWrongEl = document.getElementById('scoreWrong');
-  const muteBtn = document.getElementById('muteBtn');
-  const vineNodes = document.getElementById('vineNodes');
-  const monkeyRig = document.getElementById('monkeyRig');
-  const monkeyEl = document.getElementById('monkey');
-  const bubbleEl = document.getElementById('bubble');
-  const quizScreen = document.getElementById('quizScreen');
-  const navRow = document.getElementById('navRow');
-  const vineWrap = document.getElementById('vineWrap');
-  const summaryScreen = document.getElementById('summaryScreen');
-  const sumCorrect = document.getElementById('sumCorrect');
-  const sumWrong = document.getElementById('sumWrong');
-  const summaryTitle = document.getElementById('summaryTitle');
-  const playAgainBtn = document.getElementById('playAgainBtn');
-  const changeSettingsBtn = document.getElementById('changeSettingsBtn');
-  const confettiLayer = document.getElementById('confettiLayer');
-
-  const CONFETTI_COLORS = ['#3AA655','#FFD166','#FF6F59','#5AC8FA','#F6E27A'];
-
-  function randInt(min, max){ return Math.floor(Math.random() * (max - min + 1)) + min; }
-
-  function shuffle(arr){
-    for(let i = arr.length - 1; i > 0; i--){
-      const j = Math.floor(Math.random() * (i + 1));
-      [arr[i], arr[j]] = [arr[j], arr[i]];
-    }
-    return arr;
-  }
-
-  // Distractors are picked near the correct answer first (harder to guess by
-  // ignoring the maths), then padded out with random values if needed.
-  function makeOptions(correct){
-    const set = new Set([correct]);
-    let radius = 1;
-    while(set.size < 5 && radius <= MAX_NUM + 5){
-      if(correct - radius >= 0) set.add(correct - radius);
-      if(set.size < 5 && correct + radius <= MAX_NUM) set.add(correct + radius);
-      radius++;
-    }
-    let arr = Array.from(set);
-    if(arr.length > 5){
-      const extras = arr.filter((v) => v !== correct);
-      shuffle(extras);
-      arr = [correct, ...extras.slice(0, 4)];
-    }
-    return shuffle(arr);
-  }
-
-  function pickOp(){
-    if(OP_MODE === 'add') return '+';
-    if(OP_MODE === 'sub') return '-';
-    return Math.random() < 0.5 ? '+' : '-';
-  }
-
-  // Decides which slot (first number, second number, or the result) is
-  // hidden as the blank the student must solve for.
-  function pickMaskPos(){
-    if(BLANK_MODE === 'first') return 'a';
-    if(BLANK_MODE === 'second') return 'b';
-    if(BLANK_MODE === 'result') return 'c';
-    return ['a', 'b', 'c'][randInt(0, 2)]; // mix
-  }
-
-  function generateQuestion(){
-    const op = pickOp();
-    let a, b, c;
-    if(op === '+'){
-      a = randInt(1, Math.max(1, MAX_NUM - 1));
-      c = randInt(a, MAX_NUM);
-      b = c - a;
-    } else {
-      a = randInt(2, MAX_NUM);
-      b = randInt(0, a);
-      c = a - b;
-    }
-    const maskPos = pickMaskPos();
-    const answer = maskPos === 'a' ? a : (maskPos === 'b' ? b : c);
-    return { a, b, c, op, maskPos, answer, options: makeOptions(answer), solved: false, wrongTries: new Set(), firstAttempt: undefined };
-  }
-
-  function buildQuestions(){
-    questions = [];
-    for(let i = 0; i < TOTAL; i++) questions.push(generateQuestion());
-    currentIndex = 0;
-    score = { correct: 0, wrong: 0 };
-  }
-
-  // ----- Setup screen chip logic -----
-  const setupState = { op: 'both', blank: 'mix', max: 10, count: 10 };
-  const NUMERIC_GROUPS = ['max', 'count'];
-
-  document.querySelectorAll('.chip-row').forEach((row) => {
-    row.addEventListener('click', (e) => {
-      const btn = e.target.closest('.chip');
-      if(!btn) return;
-      row.querySelectorAll('.chip').forEach((c) => c.classList.remove('selected'));
-      btn.classList.add('selected');
-      const group = row.dataset.group;
-      const value = btn.dataset.value;
-      setupState[group] = NUMERIC_GROUPS.includes(group) ? parseInt(value, 10) : value;
-    });
-  });
-
-  startBtn.addEventListener('click', () => {
-    OP_MODE = setupState.op;
-    BLANK_MODE = setupState.blank;
-    MAX_NUM = setupState.max;
-    TOTAL = setupState.count;
-    beginGame();
-  });
-
-  changeSettingsBtn.addEventListener('click', () => {
-    summaryScreen.style.display = 'none';
-    scoreArea.style.display = 'none';
-    setupScreen.style.display = 'flex';
-  });
-
-  // ----- Vine / progress -----
-  function buildVineNodes(){
-    vineNodes.innerHTML = '';
-    for(let i = 0; i < TOTAL; i++){
-      const node = document.createElement('div');
-      node.className = 'vine-node';
-      node.textContent = '🍃';
-      vineNodes.appendChild(node);
-    }
-  }
-
-  function updateVine(){
-    const nodes = vineNodes.children;
-    for(let i = 0; i < nodes.length; i++){
-      nodes[i].classList.toggle('current', i === currentIndex);
-      const solved = questions[i].solved;
-      nodes[i].classList.toggle('solved', solved);
-      nodes[i].textContent = solved ? '⭐' : '🍃';
-    }
-    const nodeWidth = vineNodes.clientWidth / TOTAL;
-    const targetLeft = vineNodes.offsetLeft + nodeWidth * (currentIndex + 0.5);
-    monkeyRig.style.left = targetLeft + 'px';
-  }
-
-  // ----- Sound -----
-  function ensureAudio(){
-    if(!audioCtx){
-      const Ctx = window.AudioContext || window.webkitAudioContext;
-      audioCtx = new Ctx();
-    }
-    if(audioCtx.state === 'suspended') audioCtx.resume();
-    return audioCtx;
-  }
-
-  function playClap(){
-    if(!soundOn) return;
-    const ctx = ensureAudio();
-    const now = ctx.currentTime;
-    for(let i = 0; i < 3; i++){
-      const start = now + i * 0.12;
-      const bufferSize = ctx.sampleRate * 0.06;
-      const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
-      const data = buffer.getChannelData(0);
-      for(let j = 0; j < bufferSize; j++) data[j] = (Math.random() * 2 - 1) * (1 - j / bufferSize);
-      const noise = ctx.createBufferSource();
-      noise.buffer = buffer;
-      const bp = ctx.createBiquadFilter();
-      bp.type = 'bandpass';
-      bp.frequency.value = 2200;
-      const gain = ctx.createGain();
-      gain.gain.setValueAtTime(0.55, start);
-      gain.gain.exponentialRampToValueAtTime(0.001, start + 0.09);
-      noise.connect(bp); bp.connect(gain); gain.connect(ctx.destination);
-      noise.start(start); noise.stop(start + 0.09);
-    }
-    const notes = [523.25, 659.25, 783.99];
-    notes.forEach((freq, i) => {
-      const osc = ctx.createOscillator();
-      const gain = ctx.createGain();
-      osc.type = 'triangle'; osc.frequency.value = freq;
-      const start = now + 0.15 + i * 0.09;
-      gain.gain.setValueAtTime(0.001, start);
-      gain.gain.linearRampToValueAtTime(0.3, start + 0.02);
-      gain.gain.exponentialRampToValueAtTime(0.001, start + 0.25);
-      osc.connect(gain); gain.connect(ctx.destination);
-      osc.start(start); osc.stop(start + 0.26);
-    });
-  }
-
-  function playBuzz(){
-    if(!soundOn) return;
-    const ctx = ensureAudio();
-    const now = ctx.currentTime;
-    [0, 0.16].forEach((offset) => {
-      const osc = ctx.createOscillator();
-      const gain = ctx.createGain();
-      osc.type = 'sine';
-      const start = now + offset;
-      osc.frequency.setValueAtTime(300, start);
-      osc.frequency.exponentialRampToValueAtTime(150, start + 0.18);
-      gain.gain.setValueAtTime(0.001, start);
-      gain.gain.linearRampToValueAtTime(0.22, start + 0.02);
-      gain.gain.exponentialRampToValueAtTime(0.001, start + 0.2);
-      osc.connect(gain); gain.connect(ctx.destination);
-      osc.start(start); osc.stop(start + 0.2);
-    });
-  }
-
-  // ----- Background music (looping, synthesized — no audio files needed) -----
-  const MUSIC_STEP_MS = 300;
-  // 16-step playful pentatonic loop; null = rest
-  const MUSIC_LEAD = [523.25, null, 659.25, 783.99, null, 659.25, 587.33, null,
-                       523.25, null, 587.33, 659.25, null, 783.99, 659.25, null];
-  const MUSIC_BASS = [130.81, null, null, null, 196.00, null, null, null,
-                       220.00, null, null, null, 196.00, null, null, null];
-  let musicPlaying = false;
-  let musicStepIndex = 0;
-  let musicTimeoutId = null;
-
-  function scheduleTone(freq, startTime, duration, type, peakVolume){
-    const ctx = ensureAudio();
-    const osc = ctx.createOscillator();
-    const gain = ctx.createGain();
-    osc.type = type;
-    osc.frequency.value = freq;
-    gain.gain.setValueAtTime(0.0001, startTime);
-    gain.gain.linearRampToValueAtTime(peakVolume, startTime + 0.02);
-    gain.gain.exponentialRampToValueAtTime(0.0001, startTime + duration);
-    osc.connect(gain); gain.connect(ctx.destination);
-    osc.start(startTime);
-    osc.stop(startTime + duration + 0.05);
-  }
-
-  function musicTick(){
-    if(!musicPlaying) return;
-    if(soundOn){
-      const ctx = ensureAudio();
-      const now = ctx.currentTime;
-      const lead = MUSIC_LEAD[musicStepIndex % MUSIC_LEAD.length];
-      const bass = MUSIC_BASS[musicStepIndex % MUSIC_BASS.length];
-      if(lead) scheduleTone(lead, now, (MUSIC_STEP_MS / 1000) * 0.85, 'triangle', 0.05);
-      if(bass) scheduleTone(bass, now, (MUSIC_STEP_MS / 1000) * 1.6, 'sine', 0.055);
-    }
-    musicStepIndex++;
-    musicTimeoutId = setTimeout(musicTick, MUSIC_STEP_MS);
-  }
-
-  function startMusic(){
-    if(musicPlaying) return;
-    musicPlaying = true;
-    musicStepIndex = 0;
-    musicTick();
-  }
-
-  // Browsers block audio until a user gesture, so the loop begins on the
-  // very first tap anywhere on the page (setup chips count too) and then
-  // just follows the soundOn / mute toggle from then on.
-  document.addEventListener('pointerdown', function initMusic(){
-    ensureAudio();
-    startMusic();
-    document.removeEventListener('pointerdown', initMusic);
-  }, { once: true });
-
-  // ----- Confetti -----
-  function spawnConfetti(count){
-    count = count || 30;
-    const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    if(reduced) count = Math.min(count, 8);
-    for(let i = 0; i < count; i++){
-      const piece = document.createElement('div');
-      piece.className = 'confetti-piece';
-      const size = randInt(6, 12);
-      piece.style.width = size + 'px';
-      piece.style.height = (size * 1.4) + 'px';
-      piece.style.left = randInt(0, 100) + 'vw';
-      piece.style.background = CONFETTI_COLORS[randInt(0, CONFETTI_COLORS.length - 1)];
-      const duration = randInt(1400, 2600);
-      const rotate = randInt(0, 360);
-      piece.style.transform = 'rotate(' + rotate + 'deg)';
-      piece.style.transition = 'transform ' + duration + 'ms ease, top ' + duration + 'ms ease, opacity ' + duration + 'ms ease';
-      confettiLayer.appendChild(piece);
-      requestAnimationFrame(() => {
-        piece.style.top = '110vh';
-        piece.style.transform = 'rotate(' + (rotate + randInt(90, 300)) + 'deg)';
-        piece.style.opacity = '0.15';
-      });
-      setTimeout(() => piece.remove(), duration + 200);
-    }
-  }
-
-  // ----- Monkey reactions -----
-  function monkeyReact(mood){
-    monkeyEl.classList.remove('hop', 'wobble');
-    void monkeyEl.offsetWidth;
-    bubbleEl.classList.remove('show');
-    void bubbleEl.offsetWidth;
-    if(mood === 'happy'){
-      monkeyEl.classList.add('hop');
-      bubbleEl.textContent = ['🎉','👏','🍌','🌟'][randInt(0,3)];
-    } else {
-      monkeyEl.classList.add('wobble');
-      bubbleEl.textContent = '😅';
-    }
-    bubbleEl.classList.add('show');
-  }
-
-  // ----- Praise / encouragement text -----
-  const PRAISE = ['🎉 Super! That\u2019s right!', '🌟 Brilliant work!', '👏 Well done!', '🍌 Yummy, correct!'];
-  const ENCOURAGE = ['Not quite \u2014 try again!', 'Almost! Give it another go.', 'Keep trying, you can do it!'];
-  function pick(arr){ return arr[randInt(0, arr.length - 1)]; }
-
-  // ----- Rendering -----
-  function updateScoreboard(){
-    scoreCorrectEl.textContent = score.correct;
-    scoreWrongEl.textContent = score.wrong;
-  }
-
-  // Fills one equation slot: either a plain number, or the blank box
-  // (showing '?' until solved, then the revealed answer).
-  function setSlot(el, value, isBlank, solved){
-    el.classList.remove('eq-num', 'blank-box', 'solved');
-    if(isBlank){
-      el.classList.add('blank-box');
-      if(solved) el.classList.add('solved');
-      el.textContent = solved ? value : '?';
-    } else {
-      el.classList.add('eq-num');
-      el.textContent = value;
-    }
-  }
-
-  function renderQuestion(){
-    const q = questions[currentIndex];
-    eqOp.textContent = q.op === '+' ? '+' : '\u2212';
-    setSlot(slotA, q.a, q.maskPos === 'a', q.solved);
-    setSlot(slotB, q.b, q.maskPos === 'b', q.solved);
-    setSlot(slotC, q.c, q.maskPos === 'c', q.solved);
-
-    optionsWrap.innerHTML = '';
-    q.options.forEach((val) => {
-      const btn = document.createElement('button');
-      btn.className = 'option-btn';
-      btn.type = 'button';
-      btn.textContent = val;
-      btn.setAttribute('aria-label', 'Answer ' + val);
-
-      if(q.solved){
-        btn.disabled = true;
-        if(val === q.answer) btn.classList.add('correct');
-        else if(q.wrongTries.has(val)) btn.classList.add('wrong');
-      } else if(q.wrongTries.has(val)){
-        btn.disabled = true;
-        btn.classList.add('wrong');
-      } else {
-        btn.addEventListener('click', () => handleAnswer(val, btn));
-      }
-      optionsWrap.appendChild(btn);
-    });
-
-    feedbackEl.textContent = q.solved ? pick(PRAISE) : '';
-    progressLabel.textContent = 'Question ' + (currentIndex + 1) + ' of ' + TOTAL;
-    backBtn.disabled = currentIndex === 0;
-    nextBtn.disabled = !q.solved;
-    nextBtn.textContent = currentIndex === TOTAL - 1 ? 'Finish \ud83c\udfc1' : 'Next \u25b6';
-
-    updateVine();
-    updateScoreboard();
-  }
-
-  function handleAnswer(val, btn){
-    const q = questions[currentIndex];
-    if(q.solved) return;
-
-    if(q.firstAttempt === undefined){
-      q.firstAttempt = (val === q.answer);
-      if(q.firstAttempt) score.correct++; else score.wrong++;
-      updateScoreboard();
-    }
-
-    if(val === q.answer){
-      q.solved = true;
-      btn.classList.add('correct');
-      Array.from(optionsWrap.children).forEach((b) => { b.disabled = true; });
-      monkeyReact('happy');
-      playClap();
-      spawnConfetti();
-      feedbackEl.textContent = pick(PRAISE);
-      nextBtn.disabled = false;
-      nextBtn.textContent = currentIndex === TOTAL - 1 ? 'Finish \ud83c\udfc1' : 'Next \u25b6';
-      updateVine();
-    } else {
-      q.wrongTries.add(val);
-      btn.classList.add('wrong');
-      btn.disabled = true;
-      monkeyReact('sad');
-      playBuzz();
-      feedbackEl.textContent = pick(ENCOURAGE);
-    }
-  }
-
-  function showSummary(){
-    quizScreen.style.display = 'none';
-    navRow.style.display = 'none';
-    vineWrap.style.display = 'none';
-    summaryScreen.style.display = 'flex';
-    sumCorrect.textContent = score.correct;
-    sumWrong.textContent = score.wrong;
-    if(score.correct === TOTAL) summaryTitle.textContent = '\ud83c\udfc6 Math Superstar! Perfect score!';
-    else if(score.correct >= TOTAL * 0.7) summaryTitle.textContent = '\ud83c\udf1f Great job, Explorer!';
-    else if(score.correct >= TOTAL * 0.4) summaryTitle.textContent = '\ud83d\udc4d Good effort \u2014 keep practicing!';
-    else summaryTitle.textContent = '\ud83d\udcaa Nice try \u2014 practice makes perfect!';
-    if(score.correct === TOTAL) spawnConfetti(60);
-  }
-
-  function beginGame(){
-    setupScreen.style.display = 'none';
-    scoreArea.style.display = 'flex';
-    quizScreen.style.display = 'flex';
-    navRow.style.display = 'flex';
-    vineWrap.style.display = 'block';
-    summaryScreen.style.display = 'none';
-    buildQuestions();
-    buildVineNodes();
-    renderQuestion();
-  }
-
-  // ----- Events -----
-  backBtn.addEventListener('click', () => {
-    if(currentIndex > 0){ currentIndex--; renderQuestion(); }
-  });
-
-  nextBtn.addEventListener('click', () => {
-    if(currentIndex < TOTAL - 1){ currentIndex++; renderQuestion(); }
-    else { showSummary(); }
-  });
-
-  playAgainBtn.addEventListener('click', beginGame);
-
-  muteBtn.addEventListener('click', () => {
-    soundOn = !soundOn;
-    muteBtn.textContent = soundOn ? '\ud83d\udd0a' : '\ud83d\udd07';
-  });
-
-  window.addEventListener('resize', updateVine);
-
-  // Setup screen shows first; game begins only after Start Game is pressed.
-})();
-</script>
+  <!-- JavaScript Modular Scripts -->
+  <script src="js/audio.js"></script>
+  <script src="js/effects.js"></script>
+  <script src="js/avatars.js"></script>
+  <script src="js/celebrations.js"></script>
+  <script src="js/math.js"></script>
+  <script src="js/storage.js"></script>
+  <script src="js/app.js"></script>
 </body>
 </html>
