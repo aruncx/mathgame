@@ -925,19 +925,135 @@ html, body {
   margin-top: 8px;
 }
 
+/* PWA Mobile Banner Top Prompt */
+.pwa-banner {
+  width: min(840px, 96vw);
+  background: linear-gradient(135deg, #FFD166, #FF9F1C);
+  border: 3px solid #FFFFFF;
+  border-radius: var(--radius-md);
+  padding: 10px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  box-shadow: 0 10px 30px rgba(255, 159, 28, 0.4);
+  margin-bottom: 12px;
+  z-index: 120;
+  animation: bounceBanner 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.pwa-banner.hidden {
+  display: none !important;
+}
+
+.pwa-content {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-family: var(--font-heading);
+  font-weight: 800;
+  color: #2B2D42;
+  font-size: clamp(0.85rem, 2.4vw, 1.05rem);
+}
+
+.pwa-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.btn-pwa-install {
+  padding: 8px 16px;
+  border-radius: var(--radius-full);
+  border: none;
+  background: var(--leaf-dark);
+  color: #FFFFFF;
+  font-family: var(--font-heading);
+  font-weight: 800;
+  font-size: 0.9rem;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  white-space: nowrap;
+}
+
+.btn-pwa-close {
+  background: rgba(255,255,255,0.8);
+  border: none;
+  border-radius: 50%;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.9rem;
+  cursor: pointer;
+}
+
+@keyframes bounceBanner {
+  from { opacity: 0; transform: translateY(-20px) scale(0.95); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@keyframes fadeOutBanner {
+  from { opacity: 1; transform: translateY(0); }
+  to { opacity: 0; transform: translateY(-20px); }
+}
+
 /* Accessibility & Mobile Responsive Adjustments */
+@media (max-width: 640px) {
+  .top-bar {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+  }
+  .header-actions {
+    flex-wrap: wrap;
+    justify-content: space-between;
+    width: 100%;
+  }
+  .path-container {
+    padding: 0 8px;
+    height: 64px;
+    overflow: hidden;
+  }
+  .path-node {
+    min-width: 26px;
+    min-height: 26px;
+    width: 26px;
+    height: 26px;
+    font-size: 0.75rem;
+    border-width: 2px;
+  }
+  .buddy-avatar-path {
+    font-size: 2rem;
+  }
+  .path-buddy-rig {
+    top: -12px;
+  }
+}
+
 @media (max-width: 480px) {
   .app-card {
-    padding: 16px 12px;
+    padding: 14px 10px;
     border-radius: var(--radius-md);
   }
   .equation-box {
-    gap: 8px;
-    padding: 12px 8px;
+    gap: 6px;
+    padding: 10px 6px;
   }
   .option-btn {
-    min-height: 56px;
-    min-width: 56px;
+    min-height: 52px;
+    min-width: 52px;
+  }
+  .stat-pill {
+    padding: 4px 10px;
+    font-size: 0.8rem;
+  }
+  .btn-icon {
+    min-width: 42px;
+    min-height: 42px;
+    width: 42px;
+    height: 42px;
   }
 }
 

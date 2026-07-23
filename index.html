@@ -12,6 +12,13 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Quicksand:wght@600;700;800&display=swap" rel="stylesheet">
 
+  <!-- PWA Manifest & iOS Meta Tags -->
+  <link rel="manifest" href="manifest.json">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="NumberJungle">
+
   <!-- Main Stylesheet -->
   <link rel="stylesheet" href="css/style.css">
 </head>
@@ -30,6 +37,19 @@
   </div>
 
   <div class="game-viewport">
+
+    <!-- Mobile PWA Install Banner Top Prompt -->
+    <div class="pwa-banner hidden" id="pwaMobileBanner">
+      <div class="pwa-content">
+        <span>📱</span>
+        <span>Install <strong>Number Jungle</strong> App for a better experience!</span>
+      </div>
+      <div class="pwa-actions">
+        <button class="btn-pwa-install" id="pwaInstallBtn">📲 Install App</button>
+        <button class="btn-pwa-close" id="pwaCloseBtn" aria-label="Close banner">✖️</button>
+      </div>
+    </div>
+
     <main class="app-card">
 
       <!-- Global Top Navigation Bar -->
@@ -258,6 +278,7 @@
   <script src="js/math.js"></script>
   <script src="js/storage.js"></script>
   <script src="js/presence.js"></script>
+  <script src="js/pwa.js"></script>
   <script src="js/app.js"></script>
 </body>
 </html>
